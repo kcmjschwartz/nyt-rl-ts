@@ -129,7 +129,7 @@ render(){
                         <h2><a href= {article.web_url}>{article.headline.main}</a></h2>
 
                         <p>Keywords:{article.keywords.map((word)=>{
-                            return(<span>{word.value}</span>)
+                            return(<span>{word.value + ''} </span>)
                         })}</p>
                         <hr/>
                     </div>
