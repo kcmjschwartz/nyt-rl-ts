@@ -12,10 +12,12 @@ type NewYorkTimesState= {
     
 }
 interface IArticles{
-    headline: string,
-    articleUrl: string,
-    keywords: string [],
-    imageUrl: string 
+    headline: {main:string,}
+    web_url: string,
+    keywords: Array<{value:string}>,
+    multimedia: Array<{
+        url:string
+    }> 
 };
 
 type  AcceptedProps= {
@@ -59,12 +61,15 @@ class NYT extends Component<AcceptedProps,NewYorkTimesState>{
         let baseURL = 'https://api.nytimes.com/svc/search/v2/articlesearch.json'
         let apiKey = 'bXpeNBhYtDsIBx8nSVNXuTvAV1fvZ4A9'
         let urlFetch = `${baseURL}?api-key=${apiKey}&page=${this.state.pageNumber}&q=${this.state.searchTerm}`
+        
         if(this.state.startDate !== ''){
             urlFetch += `&begin_date=${this.state.startDate}` 
         }
         if(this.state.endDate !== ''){
             urlFetch += `&end_date=${this.state.endDate}` 
         }
+        console.log(urlFetch);
+        
 
         fetch(urlFetch)
         .then (res => res.json())
@@ -77,6 +82,7 @@ class NYT extends Component<AcceptedProps,NewYorkTimesState>{
     }
 
     nextPageNumber(){
+
         this.setState({
             pageNumber: this.state.pageNumber + 1
         },this.fetchArticles)
@@ -106,8 +112,28 @@ render(){
                
                     <button className="submit"onClick={e=>{e.preventDefault(); this.fetchArticles()}}>Submit search</button>
                 </form>
-                {/* <ResultsList /> */}
-            
+            </div>
+            <div style= {{visibility: this.state.articles.length === 0 ? "hidden" : "visible"}} >
+                <h1>Results</h1>
+                
+                <button onClick={() =>this.previousPageNumber()} style= {{visibility: this.state.pageNumber === 0 ? "hidden" : "visible"}}>Previous 10</button>
+                <button onClick={() =>this.nextPageNumber()} style= {{visibility: this.state.articles.length < 10 ? "hidden" : "visible"}}>Next 10</button> 
+                
+                {this.state.articles.map((article: IArticles) =>{
+                    return(  
+                        
+                    <div>
+                        {
+                         article.multimedia.length === 0 ? <h3>No image to display.</h3> : <img src={`http://www.nytimes.com/${article.multimedia[0].url}`} alt="No Image"/> 
+                        }
+                        <h2><a href= {article.web_url}>{article.headline.main}</a></h2>
+
+                        <p>Keywords:{article.keywords.map((word)=>{
+                            return(<span>{word.value}</span>)
+                        })}</p>
+                        <hr/>
+                    </div>
+                    ) })}
             </div>
 
         </div>
@@ -115,32 +141,6 @@ render(){
 }
 }
 
-// class ResultsList extends Component{
-//     render(){
-//         return(
-            
-//             <div>
-//                 <h1>Results</h1>
-                
-//                <button onClick={this.props.previousPageNumber()}>Previous 10</button>
-//                <button onClick={this.props.nextPageNumber()}>Next 10</button> 
-
-//               {this.props.articles.map((article:{IArticles}) =>{
-//                return(   
-//                <div>
-//                    <img src= {article.multimedia[0].url}/>
-//                    <h2><a href= {article.web_url}>{article.headline}</a></h2>
-
-//                    {article.keywords.map((word:{value: string})=>{
-//                        return(<span>{word.value}</span>)
-//                    })}
-//                </div>
-//                 ) })}
-//             </div>
-//         )
-//     }
-    
-// }
 
 
 export default NYT;
